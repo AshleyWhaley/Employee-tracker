@@ -25,3 +25,5 @@ VALUES
 ('Nyota', 'Uhura', 5),
 ('Pavel', 'Chekov', 6),
 ('Hikaru', 'Sulu', 7);
+
+UPDATE employee SET manager_id -1 WHERE id > 1;
