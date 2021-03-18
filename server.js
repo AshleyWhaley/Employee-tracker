@@ -1,4 +1,6 @@
 const mysql = require('mysql');
+const inquirer = require('inquirer');
+const table = require('console.table');
 
 const connection = mysql.createConnection({
     host: 'localhost',
@@ -6,6 +8,7 @@ const connection = mysql.createConnection({
     user: 'root',
     password: 'password',
     database: 'employeetracker_db',
+    multipleStatements: true,
 });
 
 //Determine what user wants to select
