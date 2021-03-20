@@ -260,11 +260,15 @@ const viewDepartments = () => {
 }
 
 const viewRoles = () => {
-    console.log();
-    connection.query(
-
-    )
-};
+    let query = `SELECT role.id AS 'ID', title AS 'Role', salary AS 'Salary', depart_name AS 'Department FROM role`;
+    query +- `JOIN department ON department.id = role.department;`;
+    console.log('Viewing all roles...\n');
+    connection.query(query, (err, res) => {
+        if (err) throw err;
+        console.table(res);
+        init();
+    });
+}
 
 const viewEmployees = () => {
     console.log();
