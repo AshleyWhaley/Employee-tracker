@@ -5,7 +5,7 @@ const table = require('console.table');
 //create connection
 const connection = mysql.createConnection({
     host: 'localhost',
-    port: 3001,
+    port: 3306,
     user: 'root',
     password: 'password',
     database: 'employeetracker_db',
@@ -47,10 +47,8 @@ const init = () => {
                 viewRequest();
                 break;
             case 'Update employee, manager or role':
-                updateRequest();
+                updateRole();
                 break;
-            case 'Delete employee, role or department':
-                deleteRequest();
             case 'Exit application':
                 connection.end();
                 break;
@@ -248,60 +246,38 @@ const addEmployees = () => {
 }
 
 
-//View department, role, employee
-const viewDepartments = () => {
-    let query = `SELECT department.id AS 'ID', depart_name AS 'Department' FROM department;`;
-    console.log('Viewing all departments...\n');
-    connection.query(query, (err, res) => {
-        if (err) throw err;
-        console.table(res);
-        init();
-    });
-}
-
-const viewRoles = () => {
-    let query = `SELECT role.id AS 'ID', title AS 'Role', salary AS 'Salary', depart_name AS 'Department FROM role`;
-    query +- `JOIN department ON department.id = role.department;`;
-    console.log('Viewing all roles...\n');
-    connection.query(query, (err, res) => {
-        if (err) throw err;
-        console.table(res);
-        init();
-    });
-}
-
-const viewEmployees = () => {
-    let query = `SELECT employee.id AS 'ID', first_name AS 'First Name', last_name AS 'Last Name', title AS 'Role', depart_name AS 'Department' FROM employee`;
-    query +- `JOIN role on role.id = employee.role_id`;
-    query +- `JOIN department ON department.id = role.department_id;`;
-    console.log('Viewing all employees...\n');
-    connection.query(query, (err, res) => {
-        if (err) throw err;
-        console.table(res);
-        init();
-    });
-}
-
-
 //Update employee roles
 const updateRole = () => {
-    console.log('Updating role');
-    connection.query(
-        'UPDATE role SET ? WHERE',
-        [
-            {
-                employee:,
-            },
-            {
-                role:,
-            },
-        ],
-        (err, res) => {
-            if (err) throw err;
-            console.log(`${res.affectedRows} role updates!\n`)
-        }
-        //deleteRole function potentially could be added
-    )
-};
+  let query = `SELECT CONCAT(first_name, " ", last_name) AS full_name from employee; SELECT * from role;`
+  connection.query(query, (err, res) => {
+      if (err) throw err;
+      inquirer
+      .prompt([
+          {
+              name:'employee_id',
+              type: 'list',
+              message: 'Select the employee you would like to update.'
+          },
+          {
+              name: 'updatedRole',
+              type: 'list',
+              choices: res[1].map(choice => choice.title),
+              message: 'Select a new role for employee.'
+          }
+      ])
+      .then((answer) => {
+          console.log('Updated employee...\n');
+          connection.query(
+              `UPDATED employee
+              SET role_id = (SELECT role.id FROM role WHERE title = '${answer.updatedRole}')
+              WHERE id = (SELECT id FROM (SELECT id FROM employee WHERE CONCAT(first_name, " ", last_name) = '${answer.employee_id}') AS temp)`,
+              (err, res) => {
+                  if (err) throw err;
+                  console.log(`${res.affectedRows} employee has been updated...\n`);
+                  init();
+              });
+      });
+  });
+}
 
 

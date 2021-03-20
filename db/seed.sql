@@ -1,5 +1,3 @@
-USE employeetracker_db;
-
 INSERT INTO department (depart_name)
 VALUES
 ('Executive'),
@@ -21,9 +19,9 @@ VALUES
 ('James', 'Kirk', 1),
 ('Schn Tgai', 'Spock', 2),
 ('Montgomery', 'Scott', 3),
-('Leonard', 'McCoy', 4)
+('Leonard', 'McCoy', 4),
 ('Nyota', 'Uhura', 5),
 ('Pavel', 'Chekov', 6),
 ('Hikaru', 'Sulu', 7);
 
-UPDATE employee SET manager_id -1 WHERE id > 1;
+UPDATE employee SET manager_id = 1 WHERE id > 1;
