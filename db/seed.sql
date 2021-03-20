@@ -1,18 +1,22 @@
 INSERT INTO department (depart_name)
 VALUES
-('Executive'),
-('Main Deck'),
-('Lower Deck');
+('Executive Commander'),
+('Assistant to the Commander'),
+('Medical Staff'),
+('Engineer'),
+('Communication'),
+('Navigation'),
+('Red Shirt');
 
 INSERT INTO role (title, salary, department_id)
 VALUES
-('Commanding Officer', 200000, 1),
-('First Officer', 150000, 1),
-('Chief Medical Officer', 125000, 2),
-('Chief Engineer', 125000, 2),
-('Communication Officer', 100000, 3),
-('Navigation Officer', 100000, 3),
-('Helmsman', 75000, 4);
+('Commanding Officer', 200, 1),
+('First Officer', 150, 2),
+('Chief Medical Officer', 125, 3),
+('Chief Engineer', 125, 4),
+('Communication Officer', 100, 5),
+('Navigation Officer', 100, 6),
+('Helmsman', 75, 7);
 
 INSERT INTO employee (first_name, last_name, role_id)
 VALUES

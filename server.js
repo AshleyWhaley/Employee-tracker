@@ -17,36 +17,35 @@ connection.connect((err) => {
     if (err) throw err;
     console.log(
         `Employee Tracker`
-    );
+    )
     init();
 });
 
 
 
 //Determine what user wants to select
-const init = () => {
+init = () => {
     inquirer
     .prompt({
         name: 'action',
-        type: 'rawlist',
+        type: 'list',
         message: 'What would you like to do?',
         choices: [
             'Add employee, department, or role',
             'View department, roles, employees',
-            'Update employee, manager or role',
-            'Delete employee, role or department',
+            'Update role of employee',
             'Exit application'
         ],
     })
     .then((answer) => {
         switch (answer.action) {
-            case 'Add employee, department or role':
+            case 'Add employee, department, or role':
                 addRequest();
                 break;
             case 'View department, roles, employees':
                 viewRequest();
                 break;
-            case 'Update employee, manager or role':
+            case 'Update role of employee':
                 updateRole();
                 break;
             case 'Exit application':
@@ -54,15 +53,18 @@ const init = () => {
                 break;
             default: 
             console.log(`Invalid action: ${answer.action}`);
+            init();
             break;
         }
     });
-};
+}
 
+//Choose which type user would like to add
 const addRequest = () => {
     inquirer
     .prompt({
         name: 'action',
+        type: 'list',
         message: 'What would you like to add?',
         choices: [
             'Department',
@@ -71,7 +73,7 @@ const addRequest = () => {
         ],
     })
     .then((answer) => {
-        switch(answer.action) {
+        switch (answer.action) {
             case 'Department':
                 addDepartments();
                 break;
@@ -82,16 +84,19 @@ const addRequest = () => {
                 addEmployees();
                 break;
             default:
-                console.log(`Invalid choice: ${answer.action}\n`);
+                console.log(`Invalid action: ${answer.action}\n`);
+                init();
                 break;
         }
     });
-};
+}
 
+//Choose the type user would like to view
 const viewRequest = () => {
     inquirer
     .prompt({
         name: 'action',
+        type: 'list',
         message: 'What would you like to view?',
         choices: [
             'Department',
@@ -112,14 +117,15 @@ const viewRequest = () => {
                 break;
             default:
                 console.log(`Invalid choice: ${answer.action}\n`);
+                init();
                 break;
         }
     });
-};
+}
 
 //View departments
 const viewDepartments = () => {
-    let query = `SELECT department.id AS 'ID', name AS 'Department' FROM department;`;
+    let query = `SELECT department.id AS 'ID', depart_name AS 'Department' FROM department;`;
     console.log('Viewing all departments... \n');
     connection.query(query, (err, res) => {
         if (err) throw err;
@@ -129,9 +135,9 @@ const viewDepartments = () => {
 }
 //View roles
 const viewRoles = () => {
-    let query = `SELECT role.id AS 'ID', title AS 'Role', salary AS 'Salary, name as 'Department FROM role;`;
-    query +- `JOIN department ON department.id - role.department_id;`;
-    console.log('Viewing all roles... \n');
+    let query = `SELECT role.id AS 'ID',  title AS 'Role', salary AS 'Salary', depart_name AS 'Department' FROM role `;
+    query += `JOIN department ON department.id = role.department_id;`;
+    console.log('Viewing all roles...\n');
     connection.query(query, (err, res) => {
         if (err) throw err;
         console.table(res);
@@ -140,33 +146,33 @@ const viewRoles = () => {
 }
 //View Employees
 const viewEmployees = () => {
-    let query = `SELECT employee.id AS 'ID', first_name AS 'First Name', last_name AS 'Last Name', title AS 'Role', salary AS 'Salary', name AS 'Department' FROM department;`;
-    query +- `JOIN role on role.id - employee.role_id`;
-    query +- `JOIN department ON department.id - role.department_id;`;
-    console.log('Viewing all employees... \n');
+    let query = `SELECT employee.id AS 'ID', first_name AS 'First Name', last_name AS 'Last Name', title AS 'Role', salary AS 'Salary', depart_name AS 'Department' FROM employee `;
+    query += `JOIN role on role.id = employee.role_id `;
+    query += `JOIN department ON department.id = role.department_id;`;
+    console.log('Viewing all employees...\n');
     connection.query(query, (err, res) => {
         if (err) throw err;
         console.table(res);
-        userSelection();
+        init();
     });
 }
 //Add department, role, employee
 const addDepartments = () => {
     inquirer
     .prompt({
-        name:'departName',
+        name:'Name',
         type: 'input',
-        message: 'What is the department name?',
+        message: 'What is the department name?'
     })
     .then((answer) => {
         console.log('Added new department...\n');
-        connection.query('INSERT INTO department SET?',
+        connection.query('INSERT INTO department SET ?',
         {
-          depart_name: answer.departName  
+          depart_name: answer.Name  
         },
         (err,res) => {
             if (err) throw err;
-            console.log(`${res.affectedRow} department added to company!\n`);
+            console.log(`${res.affectedRows} department added to company!\n`);
             init();
         });
     });
@@ -184,26 +190,27 @@ const addRoles = () => {
                 message: 'What is the name of their role?'
             },
             {
+                name: 'salary',
+                type: 'input',
+                message: 'Enter the salary for the role.'
+            },
+            {
                 name: 'depart_id',
                 type: 'list',
                 choices: res.map(choice => choice.depart_name),
                 message: 'Select the desired department for the role.'
-            },
-            {
-                name: 'salary',
-                type: 'input',
-                message: 'Enter the salary for the role.'
             }
         ])
         .then((answer) => {
-            console.log('Added new role...\n');
-            connection.query(`INSERT INTO role (title, salary, department_id)
-            VALUES ('${answer.title}', (SELECT id FROM department WHERE depart_name = '${answer.depart_id}'), '${answer.salary}');`,
-            (err, res) => {
-                if (err) throw err;
-                console.log(`${res.affectedRows} role is added\n`);
-                init();
-            });
+            console.log('Adding new role...\n');
+            connection.query(`INSERT INTO role (title,salary,department_id)
+            VALUES
+                ('${answer.title}', '${answer.salary}', (SELECT id FROM department WHERE depart_name = '${answer.depart_id}'));`,
+                (err, res) => {
+                    if (err) throw err;
+                    console.log(`${res.affectedRows} role added!\n`);
+                    init();
+                });
         });
     })
 }
@@ -248,36 +255,38 @@ const addEmployees = () => {
 
 //Update employee roles
 const updateRole = () => {
-  let query = `SELECT CONCAT(first_name, " ", last_name) AS full_name from employee; SELECT * from role;`
-  connection.query(query, (err, res) => {
-      if (err) throw err;
-      inquirer
-      .prompt([
-          {
-              name:'employee_id',
-              type: 'list',
-              message: 'Select the employee you would like to update.'
-          },
-          {
-              name: 'updatedRole',
-              type: 'list',
-              choices: res[1].map(choice => choice.title),
-              message: 'Select a new role for employee.'
-          }
-      ])
-      .then((answer) => {
-          console.log('Updated employee...\n');
-          connection.query(
-              `UPDATED employee
-              SET role_id = (SELECT role.id FROM role WHERE title = '${answer.updatedRole}')
-              WHERE id = (SELECT id FROM (SELECT id FROM employee WHERE CONCAT(first_name, " ", last_name) = '${answer.employee_id}') AS temp)`,
-              (err, res) => {
-                  if (err) throw err;
-                  console.log(`${res.affectedRows} employee has been updated...\n`);
-                  init();
-              });
-      });
-  });
+    let query = `SELECT CONCAT(first_name, " ", last_name) AS full_name from employee; SELECT * from role;`
+    connection.query(query, (err, res) => {
+        if (err) throw err;
+        inquirer
+            .prompt([
+                {
+                    name: 'employee_id',
+                    type: 'list',
+                    choices: res[0].map(choice => choice.full_name),
+                    message: 'Choose an employee you would like to update the role of.'
+                },
+                {
+                    name: 'newRole',
+                    type: 'list',
+                    choices: res[1].map(choice => choice.title),
+                    message: 'Choose a new role.'
+                }
+            ])
+            .then((answer) => {
+                console.log('Updating employee role...\n');
+                connection.query(
+                    `UPDATE employee
+                SET role_id = (SELECT role.id FROM role WHERE title = '${answer.newRole}')
+                WHERE id = (SELECT id FROM (SELECT id FROM employee WHERE CONCAT(first_name, " ", last_name) = '${answer.employee_id}') AS temp)`,
+                    (err, res) => {
+                        if (err) throw err;
+                        console.log(`${res.affectedRows} employee updated!\n`);
+                        init();
+                    });
+            });
+    });
 }
+
 
 
