@@ -250,11 +250,14 @@ const addEmployees = () => {
 
 //View department, role, employee
 const viewDepartments = () => {
-    console.log();
-    connection.query(
-
-    )
-};
+    let query = `SELECT department.id AS 'ID', depart_name AS 'Department' FROM department;`;
+    console.log('Viewing all departments...\n');
+    connection.query(query, (err, res) => {
+        if (err) throw err;
+        console.table(res);
+        init();
+    });
+}
 
 const viewRoles = () => {
     console.log();
