@@ -2,6 +2,7 @@ const mysql = require('mysql');
 const inquirer = require('inquirer');
 const table = require('console.table');
 
+//create connection
 const connection = mysql.createConnection({
     host: 'localhost',
     port: 3001,
@@ -11,29 +12,47 @@ const connection = mysql.createConnection({
     multipleStatements: true,
 });
 
+//connect
+connection.connect((err) => {
+    if (err) throw err;
+    console.log(`Connected as id` + connection.threadId);
+    init();
+});
+
+console.log(
+    `Employee Tracker`
+)
+
 //Determine what user wants to select
-const userSelection = () => {
+const init = () => {
     inquirer
     .prompt({
         name: 'action',
         type: 'rawlist',
         message: 'What would you like to do?',
         choices: [
-            'Add department, roles, employees',
+            'Add employee, department, or role',
             'View department, roles, employees',
-            'Update employee roles',
+            'Update employee, manager or role',
+            'Delete employee, role or department',
+            'Exit application'
         ],
     })
     .then((answer) => {
         switch (answer.action) {
-            case 'Add department, roles, employees':
+            case 'Add employee, department or role':
                 addRequest();
                 break;
             case 'View department, roles, employees':
                 viewRequest();
                 break;
-            case 'Update employee roles',
+            case 'Update employee, manager or role':
                 updateRequest();
+                break;
+            case 'Delete employee, role or department':
+                deleteRequest();
+            case 'Exit application':
+                connection.end();
                 break;
             default: 
             console.log(`Invalid action: ${answer.action}`);
@@ -97,6 +116,7 @@ const viewRequest = () => {
                 console.log(`Invalid choice: ${answer.action}\n`);
                 break;
         }
+    });
 };
 
 //View departments
@@ -106,7 +126,7 @@ const viewDepartments = () => {
     connection.query(query, (err, res) => {
         if (err) throw err;
         console.table(res);
-        userSelection();
+        init();
     });
 }
 //View roles
@@ -117,7 +137,7 @@ const viewRoles = () => {
     connection.query(query, (err, res) => {
         if (err) throw err;
         console.table(res);
-        userSelection();
+        init();
     });
 }
 //View Employees
@@ -134,9 +154,11 @@ const viewEmployees = () => {
 }
 //Add department, role, employee
 const addDepartments = () => {
-    console.log();
     connection.query(
-
+        'INSERT INTO department SET ?',
+        {
+            
+        }
     )
 };
 
@@ -198,3 +220,5 @@ const updateRole = () => {
         //deleteRole function potentially could be added
     )
 };
+
+
