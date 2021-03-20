@@ -15,7 +15,9 @@ const connection = mysql.createConnection({
 //connect
 connection.connect((err) => {
     if (err) throw err;
-    console.log(`Connected as id` + connection.threadId);
+    console.log(
+        `Employee Tracker`
+    );
     init();
 });
 

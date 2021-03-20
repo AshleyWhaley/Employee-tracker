@@ -1,6 +1,6 @@
 USE employeetracker_db;
 
-INSERT INTO department (name)
+INSERT INTO department (depart_name)
 VALUES
 ('Executive'),
 ('Main Deck'),
