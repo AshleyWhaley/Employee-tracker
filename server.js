@@ -271,11 +271,16 @@ const viewRoles = () => {
 }
 
 const viewEmployees = () => {
-    console.log();
-    connection.query(
-
-    )
-};
+    let query = `SELECT employee.id AS 'ID', first_name AS 'First Name', last_name AS 'Last Name', title AS 'Role', depart_name AS 'Department' FROM employee`;
+    query +- `JOIN role on role.id = employee.role_id`;
+    query +- `JOIN department ON department.id = role.department_id;`;
+    console.log('Viewing all employees...\n');
+    connection.query(query, (err, res) => {
+        if (err) throw err;
+        console.table(res);
+        init();
+    });
+}
 
 
 //Update employee roles
